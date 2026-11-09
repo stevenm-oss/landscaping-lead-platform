@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_form.html" import quote_form with context %}
+{% block title %}{{ service.name }} in {{ city.name }}, {{ city.st }} | Free quotes from local pros{% endblock %}
+{% block description %}Get a free {{ service.name|lower }} quote in {{ city.name }}. One short form, matched with a local contractor who knows {{ city.soil }}.{% endblock %}
+{% block meta %}<script type="application/ld+json">{{ ld|tojson }}</script>{% endblock %}
+{% block main %}
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+    <h1>{{ service.name }} in {{ city.name }}</h1>
+    <p class="lede">{{ lede }}</p>
+    <ul class="proof"><li>Free quotes, no obligation</li><li>Local contractors who work in {{ city.name }}</li><li>One form instead of five phone calls</li></ul>
+  </div>
+  <div class="formcard">{{ quote_form(form) }}</div>
+</div></section>
+<section class="wrap block steps">
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Tell us about your yard</strong>A minute of questions: what you need, how big, and when.</li>
+    <li><strong>We match you with a local pro</strong>One contractor who covers {{ city.name }} and does {{ service.short|lower }} work.</li>
+    <li><strong>Get your quote</strong>They reach out, look at the job and give you a price. You decide.</li>
+  </ol>
+</section>
+<section class="wrap block">
+  <h2>Common questions</h2>
+  <div class="faq">
+    <h3>Does the quote cost anything?</h3><p>No. The quote is free and you’re under no obligation to hire anyone.</p>
+    <h3>Who will contact me?</h3><p>An independent contractor who serves {{ city.name }} and does {{ service.short|lower }} work. You’ll see their name on the next screen.</p>
+    <h3>Will I get a lot of calls?</h3><p>No. We send your request to one contractor, not a list of companies.</p>
+  </div>
+</section>
+<section class="wrap block">
+  <h2>More services in {{ city.name }}</h2>
+  <div class="chips">{% for s in C.SERVICES if s.id != service.id %}<a class="chip" href="/{{ city.slug }}/{{ s.slug }}/">{{ s.name }}</a>{% endfor %}</div>
+  <h2 style="margin-top:28px">{{ service.name }} in other cities</h2>
+  <div class="chips">{% for c in C.CITIES if c.slug != city.slug %}<a class="chip" href="/{{ c.slug }}/{{ service.slug }}/">{{ c.name }}</a>{% endfor %}</div>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_form.html" import quote_form with context %}
+{% block title %}Landscaping in {{ city.name }}, {{ city.st }} | Free quotes from local pros{% endblock %}
+{% block description %}Free landscaping quotes in {{ city.name }}, {{ city.st }}: sod, flowerbeds, sprinklers, fences, patios and more from local contractors.{% endblock %}
+{% block main %}
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+    <h1>Landscaping in {{ city.name }}</h1>
+    <p class="lede">Yards in {{ city.name }} sit on {{ city.soil }}, which shapes everything from how sod roots to how deep fence posts go. Get matched with a local pro who works with it every day.</p>
+  </div>
+  <div class="formcard">{{ quote_form(form) }}</div>
+</div></section>
+<section class="wrap block">
+  <h2>Services in {{ city.name }}</h2>
+  <div class="chips">{% for s in C.SERVICES %}<a class="chip" href="/{{ city.slug }}/{{ s.slug }}/">{{ s.name }}</a>{% endfor %}</div>
+</section>
+{% endblock %}

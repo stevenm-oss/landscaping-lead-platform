@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Thanks | {{ site_name }}{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block nav %}<a href="/">Home</a>{% endblock %}
+{% block main %}
+<section class="wrap screen narrow">
+  {% if t %}
+    <h1>Thanks, {{ t.first }}.</h1>
+    {% if t.contractor %}<p class="lede">{{ t.contractor }} will contact you shortly about your project.</p>
+    {% else %}<p class="lede">We’re lining up a local pro and will reach out within one business day.</p>{% endif %}
+  {% else %}
+    <h1>Thanks.</h1><p class="lede">We got your request and a local pro will reach out soon.</p>
+  {% endif %}
+  <p><a class="btn ghost" href="/">Back to home</a></p>
+</section>
+{% endblock %}

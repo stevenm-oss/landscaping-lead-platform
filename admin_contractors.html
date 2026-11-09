@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Contractors | {{ site_name }}{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block nav %}{% include "_adminnav.html" %}{% endblock %}
+{% block main %}
+<div class="wrap screen">
+  <div class="screenhead"><h1>Contractors</h1></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Company</th><th>Services</th><th>Cities</th><th>Plan</th><th>Leads this month</th><th>Status</th></tr></thead>
+    <tbody>{% for r in rows %}<tr>
+      <td><a href="{{ url_for('admin_contractor', cid=r.id) }}">{{ r.name }}</a><br><span class="muted">{{ r.email }}</span></td>
+      <td>{% for s in r.services_list %}{{ C.svc(s).short }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+      <td>{{ r.cities_list|join(', ') }}</td>
+      <td>{% if r.is_house %}Your company{% elif r.plan == 'monthly' %}Monthly{% else %}Per lead{% endif %}</td>
+      <td>{{ r.month_leads }}</td>
+      <td>{% if not r.active %}Inactive{% elif r.paused %}Paused{% elif not r.password_hash %}No password yet{% else %}Active{% endif %}</td>
+    </tr>{% endfor %}</tbody></table></div>
+  <form method="post" class="panel" style="margin-top:24px;max-width:760px">
+    <h2>Add a contractor</h2>
+    {% set c = None %}{% include "_contractor_fields.html" %}
+    <button class="btn" type="submit">Add contractor</button>
+  </form>
+</div>
+{% endblock %}

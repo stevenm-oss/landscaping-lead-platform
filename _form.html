@@ -1,0 +1,33 @@
+{% macro quote_form(form) %}
+{% set v = form.vals %}
+<form method="post" action="{{ url_for('submit_lead') }}" id="quote" novalidate>
+  <h2>Get a free quote</h2>
+  <input type="hidden" name="ts" value="{{ form.ts }}">
+  <input type="hidden" name="page" value="{{ form.page }}">
+  <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+  <label class="field"><span>Your name</span><input type="text" name="name" autocomplete="name" maxlength="80" required value="{{ v.name or '' }}"></label>
+  <div class="row2">
+    <label class="field"><span>Mobile phone</span><input type="tel" name="phone" autocomplete="tel" maxlength="20" required value="{{ v.phone or '' }}"></label>
+    <label class="field"><span>ZIP code</span><input type="text" name="zip" inputmode="numeric" maxlength="5" autocomplete="postal-code" required value="{{ v.zip or '' }}"></label>
+  </div>
+  <label class="field"><span>Email (optional)</span><input type="email" name="email" autocomplete="email" maxlength="120" value="{{ v.email or '' }}"></label>
+  <label class="field"><span>What do you need?</span><select name="service">
+    {% for s in C.SERVICES %}<option value="{{ s.id }}"{% if (v.service or form.service) == s.id %} selected{% endif %}>{{ s.name }}</option>{% endfor %}
+  </select></label>
+  <div class="row2">
+    <label class="field"><span>Yard size</span><select name="size">
+      {% for k, opt in C.SIZE.items() %}<option value="{{ k }}"{% if (v.size or 'medium') == k %} selected{% endif %}>{{ opt[0] }}</option>{% endfor %}
+    </select></label>
+    <label class="field"><span>When?</span><select name="timeline">
+      {% for k, opt in C.TIMELINE.items() %}<option value="{{ k }}"{% if (v.timeline or 'month') == k %} selected{% endif %}>{{ opt[0] }}</option>{% endfor %}
+    </select></label>
+  </div>
+  <label class="field"><span>Budget</span><select name="budget">
+    {% for k, opt in C.BUDGET.items() %}<option value="{{ k }}"{% if (v.budget or 'b1') == k %} selected{% endif %}>{{ opt[0] }}</option>{% endfor %}
+  </select></label>
+  <label class="field"><span>Anything else? (optional)</span><textarea name="notes" maxlength="1000" placeholder="Size of the area, what’s there now, anything in the way">{{ v.notes or '' }}</textarea></label>
+  <label class="consent"><input type="checkbox" name="consent" value="1"{% if v.consent %} checked{% endif %}><span>{{ form.consent }} See our <a href="/privacy">privacy policy</a> and <a href="/terms">terms</a>.</span></label>
+  <p class="formerr" role="alert">{{ form.error or '' }}</p>
+  <button class="btn wide" type="submit">Get my free quote</button>
+</form>
+{% endmacro %}

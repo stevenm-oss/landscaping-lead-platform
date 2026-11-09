@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Billing | {{ site_name }}{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block nav %}{% include "_adminnav.html" %}{% endblock %}
+{% block main %}
+<div class="wrap screen">
+  <div class="screenhead"><h1>Billing</h1><span class="muted">{{ ym }}</span></div>
+  {% if results %}<div class="panel">{% for name, ok, msg, link in results %}<p class="{{ 'okmsg' if ok else 'formerr' }}"><strong>{{ name }}:</strong> {{ msg }}{% if link %} <a href="{{ link }}" target="_blank" rel="noopener">View invoice</a>{% endif %}</p>{% endfor %}</div>{% endif %}
+  {% if not stripe_on %}<div class="panel"><p><strong>Stripe isn’t connected yet.</strong> Add STRIPE_SECRET_KEY in your Render environment settings to send invoices.</p></div>{% endif %}
+  <div class="tablewrap" style="margin-top:16px"><table>
+    <thead><tr><th>Contractor</th><th>Unbilled leads</th><th>Monthly fee</th><th>Total due</th></tr></thead>
+    <tbody>{% for r in rows %}<tr>
+      <td>{{ r.c.name }}<br><span class="muted">{{ r.c.email }}</span></td>
+      <td>{{ r.leads|length }}{% if r.leads %} ({{ r.leads|sum(attribute='price')|money }}){% endif %}</td>
+      <td>{% if r.monthly_due %}Due{% elif r.c.plan == 'monthly' %}Billed{% else %}–{% endif %}</td>
+      <td><strong>{{ r.total|money }}</strong></td>
+    </tr>{% else %}<tr><td colspan="4" class="muted">No partner contractors yet.</td></tr>{% endfor %}</tbody></table></div>
+  <form method="post" style="margin-top:18px">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <button class="btn" type="submit"{% if not stripe_on %} disabled{% endif %}>Create and send invoices</button>
+    <p class="note">Each contractor with a balance gets a Stripe invoice by email, due in 7 days, with a link to pay by card or bank. Run this once a month, or weekly for pay-per-lead contractors.</p>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+<input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+<div class="row2">
+  <label class="field"><span>Company name</span><input type="text" name="name" required value="{{ c.name if c else '' }}"></label>
+  <label class="field"><span>Email (their login)</span><input type="email" name="email" required value="{{ c.email if c else '' }}"></label>
+</div>
+<div class="row2">
+  <label class="field"><span>Mobile for lead alerts</span><input type="tel" name="phone" value="{{ c.phone if c else '' }}"></label>
+  <label class="field"><span>{% if c %}New password (leave blank to keep){% else %}Starting password{% endif %}</span><input type="text" name="password" autocomplete="new-password" {% if not c %}required minlength="8"{% endif %}></label>
+</div>
+<h3>Services</h3>
+<div class="checks">{% for s in C.SERVICES %}<label><input type="checkbox" name="services" value="{{ s.id }}"{% if c and s.id in c.services_list %} checked{% endif %}>{{ s.short }}</label>{% endfor %}</div>
+<h3>Cities</h3>
+<div class="checks">{% for x in C.CITIES %}<label><input type="checkbox" name="cities" value="{{ x.name }}"{% if c and x.name in c.cities_list %} checked{% endif %}>{{ x.name }}</label>{% endfor %}</div>
+{% if c and c.is_house %}
+<label class="field"><span>Leads kept per week before overflow goes to partners</span><input type="number" name="cap" min="0" max="999" value="{{ c.cap }}"></label>
+<p class="note">This is your own company. Sod, flowerbed, irrigation and wood fencing leads in these cities come here first, at no charge.</p>
+{% else %}
+<h3>Plan</h3>
+<label class="toggle"><input type="radio" name="plan" value="perlead"{% if not c or c.plan == 'perlead' %} checked{% endif %}> Pay per lead</label>
+<label class="toggle"><input type="radio" name="plan" value="monthly"{% if c and c.plan == 'monthly' %} checked{% endif %}> Monthly plan</label>
+{% endif %}
+<label class="toggle"><input type="checkbox" name="sms_alerts" value="1"{% if not c or c.sms_alerts %} checked{% endif %}> Text alerts for new leads</label>
+{% if c %}
+<label class="toggle"><input type="checkbox" name="paused" value="1"{% if c.paused %} checked{% endif %}> Paused (gets no new leads)</label>
+{% if not c.is_house %}<label class="toggle"><input type="checkbox" name="active" value="1"{% if c.active %} checked{% endif %}> Active (unchecked blocks sign-in and leads)</label>{% endif %}
+{% endif %}

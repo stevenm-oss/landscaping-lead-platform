@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ who }} | {{ site_name }}{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block nav %}<a href="/">Home</a>{% endblock %}
+{% block main %}
+<section class="wrap screen narrow">
+  <h1>{{ who }}</h1>
+  <form method="post" action="{{ action }}" class="panel">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    {% if email_field %}<label class="field"><span>Email</span><input type="email" name="email" autocomplete="username" required></label>{% endif %}
+    <label class="field"><span>Password</span><input type="password" name="password" autocomplete="current-password" required></label>
+    {% if error %}<p class="formerr" role="alert">{{ error }}</p>{% endif %}
+    <button class="btn wide" type="submit">Sign in</button>
+  </form>
+</section>
+{% endblock %}

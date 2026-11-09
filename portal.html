@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Your leads | {{ site_name }}{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block nav %}<a href="#settings">Settings</a><a href="{{ url_for('portal_logout') }}">Sign out</a>{% endblock %}
+{% block main %}
+<div class="wrap screen">
+  <div class="screenhead"><div><p class="muted" style="margin:0">Signed in as</p><h1>{{ me.name }}</h1></div></div>
+  <div class="kpis">
+    <div class="kpi"><b>{{ new }}</b><span>New leads</span></div>
+    <div class="kpi"><b>{{ leads|length }}</b><span>Leads all time</span></div>
+    <div class="kpi"><b>{% if closed %}{{ (won * 100 / closed)|round|int }}%{% else %}–{% endif %}</b><span>Close rate ({{ won }} won)</span></div>
+    <div class="kpi"><b>{% if me.is_house %}$0{% else %}{{ owed|money }}{% endif %}</b><span>{% if me.is_house %}Your own leads, no charge{% else %}This month so far{% endif %}</span></div>
+  </div>
+  <div class="cols">
+    <div>
+      <h2>Your leads</h2>
+      {% for l in leads %}
+      <article class="lead t-{{ l.tier }}" id="lead-{{ l.id }}">
+        <div class="lead-top"><h3>{{ l.name }}</h3><span class="tier {{ l.tier }}">{{ l.tier }} {{ l.score }}</span></div>
+        <div class="facts"><span>{{ C.svc(l.service).name }}</span><span>{{ l.city }} {{ l.zip }}</span><span>{{ C.SIZE[l.size][0] }}</span><span>{{ C.TIMELINE[l.timeline][0] }}</span><span>{{ C.BUDGET[l.budget][0] }}</span></div>
+        {% if l.notes %}<p>“{{ l.notes }}”</p>{% endif %}
+        <div class="facts"><a href="tel:{{ l.phone }}">{{ l.phone }}</a>{% if l.email %}<a href="mailto:{{ l.email }}">{{ l.email }}</a>{% endif %}<span>{% if l.consent %}OK to text{% else %}Call or email only, no texting consent{% endif %}</span></div>
+        <div class="facts"><span>Received {{ l.created_at|local }}</span><span>{% if l.kept %}Kept{% elif l.price %}{{ l.price|money }}{% else %}Included in plan{% endif %}</span><span class="status {{ l.status }}">{{ l.status }}</span></div>
+        <div class="actions">
+          {% for s, label in [('Contacted','Mark contacted'),('Won','Mark won'),('Lost','Mark lost'),('Disputed','Report a bad lead')] %}
+          <form method="post" action="{{ url_for('portal_status', lid=l.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="status" value="{{ s }}"><button class="btn small ghost" aria-pressed="{{ 'true' if l.status == s else 'false' }}">{{ label }}</button></form>
+          {% endfor %}
+        </div>
+      </article>
+      {% else %}
+      <div class="empty">No leads yet. Add cities or services in your settings to get more matches.</div>
+      {% endfor %}
+    </div>
+    <div id="settings">
+      <form method="post" action="{{ url_for('portal_settings') }}" class="panel">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <h2>Lead settings</h2>
+        <h3>Services</h3>
+        <div class="checks">{% for s in C.SERVICES %}<label><input type="checkbox" name="services" value="{{ s.id }}"{% if s.id in me.services_list %} checked{% endif %}>{{ s.short }}</label>{% endfor %}</div>
+        <h3>Cities</h3>
+        <div class="checks">{% for c in C.CITIES %}<label><input type="checkbox" name="cities" value="{{ c.name }}"{% if c.name in me.cities_list %} checked{% endif %}>{{ c.name }}</label>{% endfor %}</div>
+        <label class="field"><span>Mobile for lead alerts</span><input type="tel" name="phone" value="{{ me.phone or '' }}"></label>
+        <label class="toggle"><input type="checkbox" name="sms_alerts" value="1"{% if me.sms_alerts %} checked{% endif %}> Text me when a lead comes in</label>
+        <label class="toggle"><input type="checkbox" name="paused" value="1"{% if me.paused %} checked{% endif %}> Pause new leads</label>
+        {% if me.is_house %}<label class="field"><span>Leads you keep per week before overflow goes to partners</span><input type="number" name="cap" min="0" max="999" value="{{ me.cap }}"></label>{% endif %}
+        <button class="btn" type="submit">Save settings</button>
+      </form>
+      {% if not me.is_house %}
+      <div class="panel"><h2>Your plan</h2>
+        {% if me.plan == 'monthly' %}<p>Monthly: {{ monthly_fee|money }} includes {{ included }} leads. You’ve used {{ used }} this month. After that, leads are {{ prices.Hot|money }} hot, {{ prices.Warm|money }} warm, {{ prices.Cold|money }} cold.</p>
+        {% else %}<p>Pay per lead: {{ prices.Hot|money }} hot, {{ prices.Warm|money }} warm, {{ prices.Cold|money }} cold.</p>{% endif %}
+        <p class="note">You’ll get a Stripe invoice by email. To change plans, reply to any invoice or lead email.</p>
+      </div>
+      {% endif %}
+      <form method="post" action="{{ url_for('portal_password') }}" class="panel">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <h2>Change password</h2>
+        <label class="field"><span>Current password</span><input type="password" name="current" autocomplete="current-password" required></label>
+        <label class="field"><span>New password</span><input type="password" name="new" autocomplete="new-password" minlength="8" required></label>
+        <button class="btn ghost" type="submit">Change password</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Owner dashboard | {{ site_name }}{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block nav %}{% include "_adminnav.html" %}{% endblock %}
+{% block main %}
+<div class="wrap screen">
+  <div class="screenhead"><h1>Owner dashboard</h1><span class="muted">This month</span></div>
+  <div class="kpis">
+    <div class="kpi"><b>{{ stats.leads }}</b><span>Leads in</span></div>
+    <div class="kpi"><b>{{ stats.kept }}</b><span>Kept for your company</span></div>
+    <div class="kpi"><b>{{ stats.sold }}</b><span>Sent to partners</span></div>
+    <div class="kpi"><b>{{ stats.revenue|money }}</b><span>Billable (est.)</span></div>
+    <div class="kpi"><b>{{ stats.unrouted }}</b><span>Need a contractor</span></div>
+  </div>
+  <h2>Leads</h2>
+  {% if leads %}
+  <div class="tablewrap"><table>
+    <thead><tr><th>Lead</th><th>Customer</th><th>Service</th><th>Where</th><th>Score</th><th>Routed to</th><th>Price</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for l in leads %}
+      <tr>
+        <td>#{{ l.id }}<br><span class="muted">{{ l.created_at|local }}</span></td>
+        <td>{{ l.name }}<br><span class="muted">{{ l.phone }}{% if not l.consent %}, no text consent{% endif %}</span></td>
+        <td>{{ C.svc(l.service).short }}</td>
+        <td>{{ l.city or 'Not covered' }}<br><span class="muted">{{ l.zip }}</span></td>
+        <td><span class="tier {{ l.tier }}">{{ l.tier }} {{ l.score }}</span></td>
+        <td>{{ l.contractor_name or '–' }}<br><span class="muted">{{ l.route_note }}</span></td>
+        <td>{% if l.kept %}Kept{% elif l.contractor_id %}{% if l.price %}{{ l.price|money }}{% else %}Plan{% endif %}{% if l.billed_invoice %}<br><span class="muted">Invoiced</span>{% endif %}{% else %}–{% endif %}</td>
+        <td><span class="status {{ l.status }}">{{ l.status }}</span></td>
+        <td>
+          {% if not l.contractor_id %}
+          <form method="post" action="{{ url_for('admin_assign', lid=l.id) }}" class="inline">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <select name="contractor_id" aria-label="Assign to">{% for c in contractors %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
+            <button class="btn small">Assign</button>
+          </form>
+          {% elif l.price and not l.billed_invoice %}
+          <form method="post" action="{{ url_for('admin_credit', lid=l.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn small ghost">Credit</button></form>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody></table></div>
+  {% else %}
+  <div class="empty">No leads yet. Submit a test quote on <a href="/">your home page</a> to see one come through.</div>
+  {% endif %}
+  <div class="cols" style="margin-top:24px">
+    <div class="panel"><h2>Activity</h2>
+      <ul class="log">{% for e in events %}<li><time>{{ e.created_at|local }}</time>{{ e.text }}</li>{% else %}<li class="muted">Nothing yet.</li>{% endfor %}</ul>
+    </div>
+    <div>
+      <div class="panel"><h2>Coverage gaps</h2>
+        {% for k, n in gaps %}<div class="gap"><strong>{{ k }}</strong><br><span class="muted">{{ n }} lead{{ 's' if n > 1 }} in the last 90 days with no contractor. Recruit one here.</span></div>
+        {% else %}<p class="muted">Every lead in the last 90 days found a contractor.</p>{% endfor %}
+      </div>
+      <form method="post" action="{{ url_for('admin_settings') }}" class="panel" id="prices">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <h2>Prices</h2>
+        <div class="pricegrid">
+          <label class="field"><span>Hot lead</span><input type="number" min="0" name="price_hot" value="{{ settings.price_hot }}"></label>
+          <label class="field"><span>Warm lead</span><input type="number" min="0" name="price_warm" value="{{ settings.price_warm }}"></label>
+          <label class="field"><span>Cold lead</span><input type="number" min="0" name="price_cold" value="{{ settings.price_cold }}"></label>
+          <label class="field"><span>Monthly plan</span><input type="number" min="0" name="monthly_fee" value="{{ settings.monthly_fee }}"></label>
+          <label class="field"><span>Leads included</span><input type="number" min="0" name="included" value="{{ settings.included }}"></label>
+        </div>
+        <p class="note">Hot is a score of 70 or more, warm is 45 to 69. Scores come from budget, timeline, yard size, texting consent, email and detail in the notes.</p>
+        <button class="btn" type="submit">Save prices</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

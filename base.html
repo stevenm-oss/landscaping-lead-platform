@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}{{ site_name }}{% endblock %}</title>
+<meta name="description" content="{% block description %}Free landscaping quotes from local contractors across Texas and Oklahoma.{% endblock %}">
+<link rel="canonical" href="{{ base_url }}{{ request.path }}">
+{% block meta %}{% endblock %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="/"><span class="mark" aria-hidden="true"></span>{{ site_name }}</a>
+  <nav class="tabs" aria-label="Main">{% block nav %}<a href="#quote">Get a free quote</a>{% endblock %}</nav>
+</div></header>
+{% with msgs = get_flashed_messages() %}{% if msgs %}<div class="wrap flash" role="status">{% for m in msgs %}<p>{{ m }}</p>{% endfor %}</div>{% endif %}{% endwith %}
+<main>{% block main %}{% endblock %}</main>
+<footer class="wrap sitefoot">
+  <p>© {{ year }} {{ site_name }}. We connect homeowners with independent local contractors.</p>
+  <p><a href="/privacy">Privacy</a> <a href="/terms">Terms</a> <a href="/portal/login">Contractor sign in</a></p>
+</footer>
+</body>
+</html>

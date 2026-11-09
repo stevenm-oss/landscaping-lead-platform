@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_form.html" import quote_form with context %}
+{% block title %}Free landscaping quotes from local pros | {{ site_name }}{% endblock %}
+{% block main %}
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+    <h1>Landscaping quotes from local pros</h1>
+    <p class="lede">Sod, flowerbeds, sprinklers, fences, patios and more. Tell us about your yard once and we’ll match you with a contractor who works in your area.</p>
+    <ul class="proof"><li>Free quotes, no obligation</li><li>One contractor, not a flood of calls</li><li>Across Dallas–Fort Worth, Austin and Oklahoma City</li></ul>
+  </div>
+  <div class="formcard">{{ quote_form(form) }}</div>
+</div></section>
+<section class="wrap block">
+  <h2>Find a pro in your city</h2>
+  <div class="chips">{% for c in C.CITIES %}<a class="chip" href="/{{ c.slug }}/">{{ c.name }}</a>{% endfor %}</div>
+</section>
+<section class="wrap block">
+  <h2>Popular in Fort Worth</h2>
+  <div class="chips">{% for s in C.SERVICES %}<a class="chip" href="/fort-worth-tx/{{ s.slug }}/">{{ s.name }}</a>{% endfor %}</div>
+</section>
+{% endblock %}

@@ -23,7 +23,17 @@ import routing
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("app")
 
-app = Flask(__name__)
+# Templates and style.css sit next to app.py (flat layout on GitHub).
+from flask import send_from_directory
+
+app = Flask(__name__, template_folder=".", static_folder=None)
+
+
+@app.get("/static/<path:filename>", endpoint="static")
+def static_file(filename):
+    if filename != "style.css":
+        abort(404)
+    return send_from_directory(app.root_path, "style.css", max_age=3600)
 app.config.update(
     SECRET_KEY=os.environ.get("SECRET_KEY") or "dev-only-change-me",
     SESSION_COOKIE_SAMESITE="Lax",

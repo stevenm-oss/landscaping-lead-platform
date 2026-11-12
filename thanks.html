@@ -14,3 +14,4 @@
   <p><a class="btn ghost" href="/">Back to home</a></p>
 </section>
 {% endblock %}
+{% block tracking %}{% if t and gads_id and gads_label %}<script>gtag('event', 'conversion', {'send_to': '{{ gads_id }}/{{ gads_label }}'});</script>{% endif %}{% endblock %}

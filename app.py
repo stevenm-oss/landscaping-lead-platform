@@ -186,7 +186,7 @@ def headers(resp):
 @app.context_processor
 def inject():
     return {"site_name": SITE_NAME, "base_url": base_url(), "C": C, "csrf_token": csrf_token,
-            "year":"year": utcnow().year, "gads_id": os.environ.get("GOOGLE_ADS_ID", ""), "gads_label": os.environ.get("GOOGLE_ADS_CONVERSION_LABEL", "")} utcnow().year}
+                       "year": utcnow().year, "gads_id": os.environ.get("GOOGLE_ADS_ID", ""), "gads_label": os.environ.get("GOOGLE_ADS_CONVERSION_LABEL", "")}
 
 
 def form_ctx(service_id, page):
